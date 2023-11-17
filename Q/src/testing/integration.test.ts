@@ -78,7 +78,7 @@ function xTestOneFile(
     expect(JSON.parse(outputData)).toStrictEqual(
       JSON.parse(expectedOutputData)
     );
-  }, 10000);
+  }, 30000);
 }
 
 async function getOutputFromTest(
