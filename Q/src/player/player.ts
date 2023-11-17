@@ -119,6 +119,59 @@ export class BasePlayer<T extends QTile> implements Player<T> {
   }
 
   public win(w: boolean) {
-    this.hasWon = w;
+    w;
+  }
+}
+
+abstract class AbstractDelayedTimeoutPlayer<
+  T extends QTile
+> extends BasePlayer<T> {
+  setupCallCount: number;
+
+  constructor(
+    name: string,
+    strategy: Strategy<T>,
+    rulebook: QRuleBook<T>,
+    private readonly delay: number
+  ) {
+    super(name, strategy, rulebook);
+    this.setupCallCount = 0;
+  }
+
+  protected callDelayedTimeoutMethod() {
+    this.setupCallCount++;
+    if (this.setupCallCount >= this.delay) {
+      while (true) {
+        // infinite loop
+      }
+    }
+  }
+}
+
+export class DelayedSetupTimeoutPlayer extends AbstractDelayedTimeoutPlayer<QTile> {
+  public setUp(m: TilePlacement<QTile>[], st: QTile[]) {
+    this.callDelayedTimeoutMethod();
+    super.setUp(m, st);
+  }
+}
+
+export class DelayedTurnTimeoutPlayer extends AbstractDelayedTimeoutPlayer<QTile> {
+  public takeTurn(s: RelevantPlayerInfo<QTile>) {
+    this.callDelayedTimeoutMethod();
+    return super.takeTurn(s);
+  }
+}
+
+export class DelayedNewTilesTimeoutPlayer extends AbstractDelayedTimeoutPlayer<QTile> {
+  public newTiles(st: QTile[]) {
+    this.callDelayedTimeoutMethod();
+    super.newTiles(st);
+  }
+}
+
+export class DelayedWinTimeoutPlayer extends AbstractDelayedTimeoutPlayer<QTile> {
+  public win(w: boolean) {
+    this.callDelayedTimeoutMethod();
+    super.win(w);
   }
 }
