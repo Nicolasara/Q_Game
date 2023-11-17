@@ -35,6 +35,10 @@ jobs:
               working-directory: ./Q
               run: npm ci
 
+            - name: Build
+              working-directory: ./Q
+              run: make
+
             - name: Run Integration Tests
               working-directory: ./Q
               run: npm test integration
