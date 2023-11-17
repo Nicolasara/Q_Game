@@ -119,7 +119,7 @@ export class BasePlayer<T extends QTile> implements Player<T> {
   }
 
   public win(w: boolean) {
-    w;
+    this.hasWon = w;
   }
 }
 
