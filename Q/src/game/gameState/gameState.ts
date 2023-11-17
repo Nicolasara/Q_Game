@@ -225,7 +225,7 @@ abstract class AbstractGameState<T extends QTile> implements QGameState<T> {
    */
   private playerOwnsPlacedTiles(tilePlacements: TilePlacement<T>[]) {
     const activePlayer = this.playerTurnQueue.getActivePlayer();
-    let activePlayerTiles = activePlayer.getAllTiles();
+    const activePlayerTiles = activePlayer.getAllTiles();
 
     return tilePlacements.every(({ tile }) => {
       const tileIndex = activePlayerTiles.findIndex((playerTile) =>

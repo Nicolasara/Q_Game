@@ -73,13 +73,13 @@ export class BaseObserver<T extends ShapeColorTile>
   implements Observer<T>, ObserverAPI
 {
   stateHistory: RenderableGameState<T>[];
-  currenStateIndex: number;
+  currentStateIndex: number;
   updateViewCallback: (html: string) => void;
   endGameCallback: (gameStateHtml: string, endGameCardHtml: string) => void;
 
   constructor() {
     this.stateHistory = [];
-    this.currenStateIndex = 0;
+    this.currentStateIndex = 0;
     this.updateViewCallback = () => {};
     this.endGameCallback = () => {};
     createWindow(this);
@@ -131,21 +131,21 @@ export class BaseObserver<T extends ShapeColorTile>
   }
 
   public nextState() {
-    if (this.currenStateIndex < this.stateHistory.length - 1) {
-      this.currenStateIndex++;
+    if (this.currentStateIndex < this.stateHistory.length - 1) {
+      this.currentStateIndex++;
       this.updateGUIView();
     }
   }
 
   public previousState() {
-    if (this.currenStateIndex > 0) {
-      this.currenStateIndex--;
+    if (this.currentStateIndex > 0) {
+      this.currentStateIndex--;
       this.updateGUIView();
     }
   }
 
   public saveState(filepath: string): void {
-    const jstate = toJState(this.stateHistory[this.currenStateIndex]);
+    const jstate = toJState(this.stateHistory[this.currentStateIndex]);
     saveJsonToFilePath(jstate, filepath);
   }
 
@@ -157,7 +157,7 @@ export class BaseObserver<T extends ShapeColorTile>
 
   private updateGUIView() {
     this.updateViewCallback(
-      this.toHtmlView(this.stateHistory[this.currenStateIndex])
+      this.toHtmlView(this.stateHistory[this.currentStateIndex])
     );
   }
 

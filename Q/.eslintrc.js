@@ -3,7 +3,8 @@ module.exports = {
     browser: true,
     es2021: true
   },
-  extends: 'prettier',
+  parser: '@typescript-eslint/parser',
+  extends: ['prettier', 'plugin:@typescript-eslint/recommended'],
   overrides: [
     {
       env: {
@@ -14,12 +15,5 @@ module.exports = {
         sourceType: 'script'
       }
     }
-  ],
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.node.json', './tsconfig.web.json'],
-    tsconfigRootDir: __dirname
-  },
-  plugins: ['react']
+  ]
 };
