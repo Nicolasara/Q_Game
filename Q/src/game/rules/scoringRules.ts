@@ -42,7 +42,7 @@ export const getTileWithPlacements = <T extends QTile>(
 export const pointsForPlayingAllTiles = (
   bonusPointsAmount: number
 ): ScoringRule<QTile> => {
-  return (turnState, _getTile) => {
+  return (turnState) => {
     const numPlacements = turnState.turnAction.getPlacements().length;
     const numTilesInHand = turnState.playerTiles.length;
 
@@ -312,7 +312,8 @@ const scoreSequence = <T extends QTile>(
   seenTiles: Set<Coordinate>,
   getOpposingNeighbors: (coord: Coordinate) => [Coordinate, Coordinate]
 ): number => {
-  const tileExists = (coord: Coordinate): boolean => getTile(coord) !== undefined;
+  const tileExists = (coord: Coordinate): boolean =>
+    getTile(coord) !== undefined;
   const [neighbor1, neighbor2] = getOpposingNeighbors(coordinate);
 
   if (!tileExists(neighbor1) && !tileExists(neighbor2)) {

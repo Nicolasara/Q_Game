@@ -106,7 +106,7 @@ async function getOutputFromTest(
 
 function assertFileHasValidJSONs(filePath: string): void {
   const content = readFileSync(filePath, 'utf-8').trim();
-  const values: any[] = [];
+  const values = [];
   let buffer = '';
   for (const char of content) {
     buffer += char;

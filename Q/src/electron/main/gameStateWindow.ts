@@ -25,9 +25,9 @@ export const createWindow = (observer: ObserverAPI) => {
 
     window.loadFile('src/electron/renderer/index.html');
 
-    ipcMain.on('next-state', (_event) => observer.nextState());
-    ipcMain.on('previous-state', (_event) => observer.previousState());
-    ipcMain.on('save-state', (_event) => saveFileHelper(observer));
+    ipcMain.on('next-state', () => observer.nextState());
+    ipcMain.on('previous-state', () => observer.previousState());
+    ipcMain.on('save-state', () => saveFileHelper(observer));
     observer.setUpdateViewCallback((html: string) => {
       window.webContents.send('update-view', html);
     });

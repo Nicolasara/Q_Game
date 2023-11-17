@@ -94,9 +94,7 @@ export class LdasgStrategy implements Strategy<BaseTile> {
 export class NonAdjacentCoordinateStrategy implements Strategy<BaseTile> {
   public suggestMove(
     mapState: TilePlacement<BaseTile>[],
-    playerTiles: BaseTile[],
-    _remainingTilesCount: number,
-    _placementRules: ReadonlyArray<PlacementRule<BaseTile>>
+    playerTiles: BaseTile[]
   ) {
     const maxRight = Math.max(
       ...mapState.map((tp) => tp.coordinate.getCoordinate().x)

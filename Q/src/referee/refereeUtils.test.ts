@@ -2,10 +2,7 @@ import { BaseGameState } from '../game/gameState/gameState';
 import Coordinate from '../game/map/coordinate';
 import { BaseTile } from '../game/map/tile';
 import { BaseRuleBook } from '../game/rules/ruleBook';
-import {
-  RelevantPlayerInfo,
-  TilePlacement
-} from '../game/types/gameState.types';
+import { RelevantPlayerInfo } from '../game/types/gameState.types';
 import { colorList, shapeList } from '../game/types/map.types';
 import { BaseTurnAction } from '../player/turnAction';
 import { BasePlayer } from '../player/player';

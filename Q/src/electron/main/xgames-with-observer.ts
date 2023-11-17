@@ -12,8 +12,7 @@ import { toQState } from './parseQ/qState';
 import { JState, JActor, Json } from './types';
 import { validateJActors } from './validate/validateJActors';
 import { validateJState } from './validate/validateJState';
-
-const JSONStream = require('JSONStream');
+import JSONStream from 'JSONStream';
 
 let inputState: JState | undefined = undefined;
 let inputActors: JActor[] | undefined = undefined;

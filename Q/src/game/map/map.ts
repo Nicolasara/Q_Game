@@ -79,7 +79,7 @@ abstract class AbstractQMap<T extends QTile> implements QMap<T> {
   constructor(startingTilePlacements: TilePlacement<T>[]) {
     this.board = new Dictionary<Coordinate, T>();
     this.dimensions = { topmost: 0, bottommost: 0, leftmost: 0, rightmost: 0 };
-    startingTilePlacements.forEach(({ tile, coordinate }, _) => {
+    startingTilePlacements.forEach(({ tile, coordinate }) => {
       this.addToBoard(tile, coordinate);
     });
   }
