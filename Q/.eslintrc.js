@@ -3,7 +3,24 @@ module.exports = {
     browser: true,
     es2021: true
   },
-  extends: 'prettier',
+  extends: ['standard-with-typescript', 'plugin:react/recommended', 'prettier'],
+  rules: {
+    '@typescript-eslint/no-confusing-void-expression': [
+      'error',
+      {
+        ignoreArrowShorthand: true,
+        ignoreVoidOperator: true
+      }
+    ],
+    '@typescript-eslint/explicit-function-return-type': ['warn'],
+    '@typescript-eslint/require-array-sort-compare': 'warn',
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    '@typescript-eslint/no-unused-vars': ['warn'],
+    'prefer-const': ['warn'],
+    '@typescript-eslint/consistent-type-definitions': 'off',
+    "@typescript-eslint/array-type": "off",
+    "@typescript-eslint/consistent-type-imports": 'warn'
+  },
   overrides: [
     {
       env: {
