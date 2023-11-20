@@ -126,21 +126,21 @@ export class BasePlayer<T extends QTile> implements Player<T> {
 abstract class AbstractDelayedTimeoutPlayer<
   T extends QTile
 > extends BasePlayer<T> {
-  setupCallCount: number;
+  methodCallCount: number;
 
   constructor(
     name: string,
     strategy: Strategy<T>,
     rulebook: QRuleBook<T>,
-    private readonly delay: number
+    private readonly methodCallsUntilDelay: number
   ) {
     super(name, strategy, rulebook);
-    this.setupCallCount = 0;
+    this.methodCallCount = 0;
   }
 
   protected callDelayedTimeoutMethod() {
-    this.setupCallCount++;
-    if (this.setupCallCount >= this.delay) {
+    this.methodCallCount++;
+    if (this.methodCallCount >= this.methodCallsUntilDelay) {
       while (true) {
         // infinite loop
       }
