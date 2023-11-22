@@ -1,4 +1,8 @@
-import { NUMBER_OF_EACH_TILE, NUMBER_OF_PLAYER_TILES } from '../constants';
+import {
+  NUMBER_OF_EACH_TILE,
+  NUMBER_OF_PLAYER_TILES,
+  REFEREE_PLAYER_TIMEOUT_MS
+} from '../constants';
 import { RandomBagOfTiles, QBagOfTiles } from '../game/gameState/bagOfTiles';
 import { BaseGameState, QGameState } from '../game/gameState/gameState';
 import PlayerState from '../game/gameState/playerState';
@@ -509,9 +513,33 @@ const interactWithPlayer = <R>(
   eliminatePlayer?: () => void
 ): R | undefined => {
   try {
-    return interaction();
+    return handleInteractWithTimeout(interaction, REFEREE_PLAYER_TIMEOUT_MS);
   } catch (error) {
     eliminatePlayer?.();
     return undefined;
   }
+};
+
+/**
+ * Attempts to run an interaction with a player, if it takes longer than the
+ * given timeout, the interaction is cancelled and an error is thrown.
+ * @param interaction the interaction to attempt to run
+ * @param timeout the timeout in milliseconds
+ * @returns the result of the interaction
+ */
+const handleInteractWithTimeout = <R>(
+  interaction: () => R,
+  timeout: number
+): R => {
+  let result: R | undefined = undefined;
+  new Promise<R>(() => {
+    interaction();
+  }).then((res) => (result = res));
+  const start = Date.now();
+  while (start + timeout < Date.now()) {
+    if (result !== undefined) {
+      return result;
+    }
+  }
+  throw new Error('Player timeout');
 };
