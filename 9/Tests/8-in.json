@@ -1,0 +1,120 @@
+{
+    "map": [
+        [
+            0,
+            [
+                0,
+                {
+                    "color": "blue",
+                    "shape": "star"
+                }
+            ]
+        ]
+    ],
+    "tile*": [
+        {
+            "color": "green",
+            "shape": "clover"
+        },
+        {
+            "color": "green",
+            "shape": "clover"
+        },
+        {
+            "color": "red",
+            "shape": "square"
+        },
+        {
+            "color": "purple",
+            "shape": "square"
+        },
+        {
+            "color": "orange",
+            "shape": "8star"
+        },
+        {
+            "color": "green",
+            "shape": "star"
+        },
+        {
+            "color": "blue",
+            "shape": "star"
+        },
+        {
+            "color": "blue",
+            "shape": "8star"
+        },
+        {
+            "color": "orange",
+            "shape": "diamond"
+        },
+        {
+            "color": "green",
+            "shape": "clover"
+        }
+    ],
+    "players": [
+        {
+            "score": 0,
+            "tile*": [
+                {
+                    "color": "purple",
+                    "shape": "8star"
+                },
+                {
+                    "color": "orange",
+                    "shape": "circle"
+                },
+                {
+                    "color": "blue",
+                    "shape": "diamond"
+                },
+                {
+                    "color": "yellow",
+                    "shape": "circle"
+                },
+                {
+                    "color": "red",
+                    "shape": "8star"
+                },
+                {
+                    "color": "green",
+                    "shape": "star"
+                }
+            ]
+        },
+        {
+            "score": 0,
+            "tile*": [
+                {
+                    "color": "purple",
+                    "shape": "circle"
+                },
+                {
+                    "color": "purple",
+                    "shape": "circle"
+                },
+                {
+                    "color": "purple",
+                    "shape": "clover"
+                },
+                {
+                    "color": "yellow",
+                    "shape": "circle"
+                },
+                {
+                    "color": "orange",
+                    "shape": "square"
+                },
+                {
+                    "color": "red",
+                    "shape": "square"
+                }
+            ]
+        }
+    ]
+}
+[
+    ["A", "dag", "take-turn", 6],
+    ["D", "dag", "win", 2]
+]
