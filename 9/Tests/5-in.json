@@ -1,0 +1,91 @@
+{
+    "map": [
+        [
+            0,
+            [
+                0,
+                {
+                    "color": "blue",
+                    "shape": "star"
+                }
+            ]
+        ]
+    ],
+    "tile*": [],
+    "players": [
+        {
+            "score": 3,
+            "tile*": [
+                {
+                    "color": "blue",
+                    "shape": "star"
+                },
+                {
+                    "color": "red",
+                    "shape": "clover"
+                }
+            ]
+        },
+        {
+            "score": 2,
+            "tile*": [
+                {
+                    "color": "blue",
+                    "shape": "star"
+                },
+                {
+                    "color": "red",
+                    "shape": "clover"
+                }
+            ]
+        },
+        {
+            "score": 1,
+            "tile*": [
+                {
+                    "color": "blue",
+                    "shape": "star"
+                },
+                {
+                    "color": "red",
+                    "shape": "clover"
+                }
+            ]
+        },
+        {
+            "score": 0,
+            "tile*": [
+                {
+                    "color": "blue",
+                    "shape": "star"
+                },
+                {
+                    "color": "green",
+                    "shape": "clover"
+                }
+            ]
+        }
+    ]
+}
+[
+    [
+        "C",
+        "dag",
+        "a cheat",
+        "tile-not-owned"
+    ],
+    [
+        "B",
+        "dag",
+        "take-turn",
+        1
+    ],
+    [
+        "A",
+        "dag"
+    ],
+    [
+        "D",
+        "dag"
+    ]
+]
