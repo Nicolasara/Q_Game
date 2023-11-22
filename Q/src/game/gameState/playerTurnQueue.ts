@@ -242,15 +242,18 @@ class PlayerTurnQueue<T extends QTile> implements QPlayerTurnQueue<T> {
   }
 
   public getAllMostRecentTurns(): TurnState<T>[] {
-    const activePlayersTurns = this.playerQueue.map((player) =>
-      player.getMostRecentTurn()
-    );
-    const eliminatedPlayersTurn =
-      this.playersEliminatedAttemptingTurnThisRound.map((player) =>
-        player.getMostRecentTurn()
-      );
-
-    return [...activePlayersTurns, ...eliminatedPlayersTurn];
+    const allTurns: TurnState<T>[] = [];
+    const addTurnsFromPlayers = (players: PlayerState<T>[]) => {
+      players.forEach((player) => {
+        const turn = player.getMostRecentTurn();
+        if (turn) {
+          allTurns.push(turn);
+        }
+      });
+    };
+    addTurnsFromPlayers(this.playerQueue);
+    addTurnsFromPlayers(this.playersEliminatedAttemptingTurnThisRound);
+    return allTurns;
   }
 
   public getAllPlayersSetupInformation() {
