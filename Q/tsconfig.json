@@ -1,5 +1,12 @@
 {
   "files": [],
-  "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }],
-  "include": ["./src/electron/renderer/renderer.d.ts", "./**/*.d.ts"] 
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.web.json" }
+  ],
+  "include": [
+    "./src/electron/renderer/renderer.d.ts",
+    "./**/*.d.ts",
+    "./eslintrc.js"
+  ]
 }

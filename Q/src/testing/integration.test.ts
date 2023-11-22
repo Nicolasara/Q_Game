@@ -78,7 +78,7 @@ function xTestOneFile(
     expect(JSON.parse(outputData)).toStrictEqual(
       JSON.parse(expectedOutputData)
     );
-  }, 10000);
+  }, 30000);
 }
 
 async function getOutputFromTest(
@@ -106,7 +106,7 @@ async function getOutputFromTest(
 
 function assertFileHasValidJSONs(filePath: string): void {
   const content = readFileSync(filePath, 'utf-8').trim();
-  const values: any[] = [];
+  const values: unknown[] = [];
   let buffer = '';
   for (const char of content) {
     buffer += char;

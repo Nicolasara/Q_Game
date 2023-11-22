@@ -73,13 +73,13 @@ export class BaseObserver<T extends ShapeColorTile>
   implements Observer<T>, ObserverAPI
 {
   stateHistory: RenderableGameState<T>[];
-  currenStateIndex: number;
+  currentStateIndex: number;
   updateViewCallback: (html: string) => void;
   endGameCallback: (gameStateHtml: string, endGameCardHtml: string) => void;
 
   constructor() {
     this.stateHistory = [];
-    this.currenStateIndex = 0;
+    this.currentStateIndex = 0;
     this.updateViewCallback = () => {};
     this.endGameCallback = () => {};
     createWindow(this);
@@ -97,7 +97,15 @@ export class BaseObserver<T extends ShapeColorTile>
   }
 
   private makeGameOverCard(winners: string[], eliminated: string[]): string {
-    return '<h1> GAME OVER </h1>';
+    return `<div>
+        <h1> GAME OVER</h1>
+        ${winners.map((winner) => `<h2> ${winner} wins! </h2>`).join('\n')}
+        ${eliminated
+          .map(
+            (eliminatedPlayer) => `<h2> ${eliminatedPlayer} was a baddie! </h2>`
+          )
+          .join('\n')}
+      </div>`;
   }
 
   public receiveState(gameState: RenderableGameState<T>) {
@@ -131,22 +139,22 @@ export class BaseObserver<T extends ShapeColorTile>
   }
 
   public nextState() {
-    if (this.currenStateIndex < this.stateHistory.length - 1) {
-      this.currenStateIndex++;
+    if (this.currentStateIndex < this.stateHistory.length - 1) {
+      this.currentStateIndex++;
       this.updateGUIView();
     }
   }
 
   public previousState() {
-    if (this.currenStateIndex > 0) {
-      this.currenStateIndex--;
+    if (this.currentStateIndex > 0) {
+      this.currentStateIndex--;
       this.updateGUIView();
     }
   }
 
   public saveState(filepath: string): void {
-    const jstate = toJState(this.stateHistory[this.currenStateIndex]);
-    saveJsonToFilePath(jstate, filepath);
+    const jstate = toJState(this.stateHistory[this.currentStateIndex]);
+    saveJsonToFilePath(JSON.stringify(jstate), filepath);
   }
 
   public setUpdateViewCallback(
@@ -157,7 +165,7 @@ export class BaseObserver<T extends ShapeColorTile>
 
   private updateGUIView() {
     this.updateViewCallback(
-      this.toHtmlView(this.stateHistory[this.currenStateIndex])
+      this.toHtmlView(this.stateHistory[this.currentStateIndex])
     );
   }
 
@@ -168,8 +176,7 @@ export class BaseObserver<T extends ShapeColorTile>
   }
 }
 
-function saveJsonToFilePath(json: Object, filePath: string) {
-  const jsonString = JSON.stringify(json);
+function saveJsonToFilePath(jsonString: string, filePath: string) {
   writeFile(filePath, jsonString, 'utf8', (err) => {
     if (err) {
       console.error('An error occurred:', err);

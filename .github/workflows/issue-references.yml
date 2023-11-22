@@ -1,0 +1,36 @@
+name: "Issue References"
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    dangling-todos:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Check TODOs for dangling issue references
+              run: |
+                  # Use grep to extract issue numbers from TODOs
+                  TODO_ISSUES=$(grep -o -r "// TODO: #[0-9]\+" . | sed -E 's/.*#([0-9]+).*/\1/')
+                  dangling_issues=()
+                  for ISSUE_NUMBER in $TODO_ISSUES; do
+                      # Use GitHub API to check issue status
+                      ISSUE_STATUS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                                          "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER" | \
+                                      jq '.state')
+                      if [[ "$ISSUE_STATUS" == '"closed"' ]]; then
+                          dangling_issues+=($ISSUE_NUMBER)
+                      fi
+                  done
+                  dangling_issue_count=${#dangling_issues[@]}
+                  if (( dangling_issue_count > 0)); then
+                      echo "::error:: Found TODO(s) referencing closed issue(s)"
+                      for ISSUE_NUMBER in "${dangling_issues[@]}"; do
+                          echo "::notice::  #$ISSUE_NUMBER"
+                      done
+                      exit 1
+                  fi

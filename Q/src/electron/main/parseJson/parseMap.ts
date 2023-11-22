@@ -96,6 +96,6 @@ export function mustParseAsJTile(json: Json): JTile {
   };
 }
 
-const isShape = (x: any): x is Shape => shapeList.includes(x);
+const isShape = (x: unknown): x is Shape => shapeList.includes(x as Shape);
 
-const isColor = (x: any): x is Color => colorList.includes(x);
+const isColor = (x: unknown): x is Color => colorList.includes(x as Color);

@@ -1,10 +1,17 @@
 import { BaseTile } from '../../../game/map/tile';
 import { QRuleBook } from '../../../game/rules/ruleBook';
 import {
-  TilePlacement,
-  RelevantPlayerInfo
-} from '../../../game/types/gameState.types';
-import { Player, BasePlayer } from '../../../player/player';
+  Player,
+  BasePlayer,
+  DelayedSetupTimeoutPlayer,
+  DelayedTurnTimeoutPlayer,
+  DelayedNewTilesTimeoutPlayer,
+  DelayedWinTimeoutPlayer,
+  SetupExceptionPlayer,
+  TurnExceptionPlayer,
+  NewTilesExceptionPlayer,
+  WinExceptionPlayer
+} from '../../../player/player';
 import {
   Strategy,
   DagStrategy,
@@ -15,6 +22,12 @@ import {
   BadAskForTilesStrategy,
   NoFitStrategy
 } from '../../../player/strategy';
+import {
+  isSimpleJActor,
+  isExceptionJActor,
+  isCheatJActor,
+  isDelayedInfiniteLoopJActor
+} from '../parseJson/parseActor';
 import { JActor, JStrategy, JExn, JCheat } from '../types';
 
 export const toQPlayers = (
@@ -26,29 +39,45 @@ export const toQPlayers = (
     const jStrategy = jActor[1];
     const qStrategy = jStrategyToQStrategy(jStrategy);
 
-    let cheatStrategy: Strategy<BaseTile> | undefined;
-    if (jActor.length === 4) {
+    if (jActor[2] && isJExn(jActor[2])) {
+      let methodCallsUntilDelay = jActor[3];
+      if (typeof methodCallsUntilDelay !== 'number') {
+        methodCallsUntilDelay = 1;
+      }
+      return getExceptionPlayer(
+        name,
+        qStrategy,
+        rulebook,
+        jActor[2],
+        methodCallsUntilDelay
+      );
+    }
+
+    if (isSimpleJActor(jActor)) {
+      return new BasePlayer(name, qStrategy, rulebook);
+    }
+    if (isExceptionJActor(jActor)) {
+      const jExn = jActor[2];
+      return getExceptionPlayer(name, qStrategy, rulebook, jExn);
+    }
+    if (isCheatJActor(jActor)) {
       const jCheat = jActor[3];
-      cheatStrategy = getCheatStrategy(jCheat, qStrategy);
+      const cheatStrategy = getCheatStrategy(jCheat, qStrategy);
+      return new BasePlayer(name, cheatStrategy, rulebook);
     }
-
-    const basePlayer = new BasePlayer(
-      name,
-      cheatStrategy ?? qStrategy,
-      rulebook
-    );
-
-    let exn = jActor[2];
-
-    if (exn === 'a cheat') {
-      exn = undefined;
+    if (isDelayedInfiniteLoopJActor(jActor)) {
+      const jExn = jActor[2];
+      const count = jActor[3];
+      return getInfiniteLoopPlayer(name, qStrategy, rulebook, jExn, count);
     }
-
-    return new ExceptionPlayer(basePlayer, exn);
+    throw new Error('invalid JActor');
   });
 };
 
-const getCheatStrategy = (jCheat: JCheat, qStrategy: Strategy<BaseTile>) => {
+const getCheatStrategy = (
+  jCheat: JCheat,
+  qStrategy: Strategy<BaseTile>
+): Strategy<BaseTile> => {
   switch (jCheat) {
     case 'non-adjacent-coordinate':
       return new NonAdjacentCoordinateStrategy();
@@ -72,42 +101,43 @@ const jStrategyToQStrategy = (jStrategy: JStrategy): Strategy<BaseTile> => {
   }
 };
 
-class ExceptionPlayer implements Player<BaseTile> {
-  private basePlayer: BasePlayer<BaseTile>;
-  private exception: JExn | undefined;
-
-  constructor(basePlayer: BasePlayer<BaseTile>, exception: JExn | undefined) {
-    this.basePlayer = basePlayer;
-    this.exception = exception;
+const getExceptionPlayer = (
+  name: string,
+  strategy: Strategy<BaseTile>,
+  rulebook: QRuleBook<BaseTile>,
+  jExn: JExn
+): Player<BaseTile> => {
+  switch (jExn) {
+    case 'setup':
+      return new SetupExceptionPlayer(name, strategy, rulebook);
+    case 'take-turn':
+      return new TurnExceptionPlayer(name, strategy, rulebook);
+    case 'new-tiles':
+      return new NewTilesExceptionPlayer(name, strategy, rulebook);
+    case 'win':
+      return new WinExceptionPlayer(name, strategy, rulebook);
+    default:
+      throw new Error(`Invalid exception type ${jExn}`);
   }
+};
 
-  public name() {
-    return this.basePlayer.name();
+const getInfiniteLoopPlayer = (
+  name: string,
+  strategy: Strategy<BaseTile>,
+  rulebook: QRuleBook<BaseTile>,
+  jExn: JExn,
+  count: number
+): Player<BaseTile> => {
+  switch (jExn) {
+    case 'setup':
+      return new DelayedSetupTimeoutPlayer(name, strategy, rulebook, count);
+    case 'take-turn':
+      return new DelayedTurnTimeoutPlayer(name, strategy, rulebook, count);
+    case 'new-tiles':
+      return new DelayedNewTilesTimeoutPlayer(name, strategy, rulebook, count);
+    case 'win':
+      return new DelayedWinTimeoutPlayer(name, strategy, rulebook, count);
+    default:
+      throw new Error(`Invalid exception type ${jExn}`);
   }
-
-  private throwIfExnMatch(exn: JExn) {
-    if (exn === this.exception) {
-      throw new Error('Player misbehaving');
-    }
-  }
-
-  public setUp(m: TilePlacement<BaseTile>[], st: BaseTile[]) {
-    this.throwIfExnMatch('setup');
-    return this.basePlayer.setUp(m, st);
-  }
-
-  public takeTurn(s: RelevantPlayerInfo<BaseTile>) {
-    this.throwIfExnMatch('take-turn');
-    return this.basePlayer.takeTurn(s);
-  }
-
-  public newTiles(st: BaseTile[]) {
-    this.throwIfExnMatch('new-tiles');
-    return this.basePlayer.newTiles(st);
-  }
-
-  public win(w: boolean) {
-    this.throwIfExnMatch('win');
-    return this.basePlayer.win(w);
-  }
-}
+};

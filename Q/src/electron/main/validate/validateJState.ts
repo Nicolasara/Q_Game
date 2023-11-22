@@ -31,7 +31,7 @@ const validateJRow = (jRow: JRow) => {
     throw new Error('JRows JCell sequence must not be empty');
   }
 
-  const columnIndexNumbers = new Set<Number>();
+  const columnIndexNumbers = new Set<number>();
   jRow.forEach((jCell, index) => {
     if (index !== 0 && typeof jCell !== 'number') {
       const columnIndex = jCell[0];

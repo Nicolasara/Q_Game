@@ -94,9 +94,7 @@ export class LdasgStrategy implements Strategy<BaseTile> {
 export class NonAdjacentCoordinateStrategy implements Strategy<BaseTile> {
   public suggestMove(
     mapState: TilePlacement<BaseTile>[],
-    playerTiles: BaseTile[],
-    _remainingTilesCount: number,
-    _placementRules: ReadonlyArray<PlacementRule<BaseTile>>
+    playerTiles: BaseTile[]
   ) {
     const maxRight = Math.max(
       ...mapState.map((tp) => tp.coordinate.getCoordinate().x)
@@ -126,10 +124,10 @@ export class TileNotOwnedStrategy implements Strategy<BaseTile> {
     for (const shape of shapeList) {
       for (const color of colorList) {
         const tile = new BaseTile(shape, color);
-        if (!playerTiles.find((t) => t.equals(tile))) {
-          return new BaseTurnAction('PLACE', [
-            { tile: tile, coordinate: new Coordinate(0, 0) }
-          ]);
+        const tileNotInHand = playerTiles.every((t) => !t.equals(tile));
+        if (tileNotInHand) {
+          const coordinate = new Coordinate(0, 0);
+          return new BaseTurnAction('PLACE', [{ tile, coordinate }]);
         }
       }
     }

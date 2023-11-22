@@ -1,0 +1,24 @@
+name: "Lint"
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+
+            - name: install
+              working-directory: ./Q
+              run: npm install
+
+            - name: eslint
+              working-directory: ./Q
+              run: npm run eslint

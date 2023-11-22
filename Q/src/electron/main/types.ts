@@ -44,7 +44,8 @@ export type JExn = 'setup' | 'take-turn' | 'new-tiles' | 'win';
 export type JActor =
   | [string, JStrategy]
   | [string, JStrategy, JExn]
-  | [string, JStrategy, 'a cheat', JCheat];
+  | [string, JStrategy, 'a cheat', JCheat]
+  | [string, JStrategy, JExn, number];
 
 export type JCheat =
   | 'non-adjacent-coordinate'

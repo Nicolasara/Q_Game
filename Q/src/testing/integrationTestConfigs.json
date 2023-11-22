@@ -1,6 +1,6 @@
 [
   {
     "testScript": "8/xgames-with-observer",
-    "directories": ["8/grade/staff-tests"]
+    "directories": ["8/OldTests/staff-tests"]
   }
 ]
