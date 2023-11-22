@@ -26,26 +26,31 @@ export class SafePlayer<T extends QTile> {
     this.timeout = timeout;
   }
 
-  private handleErrorsAndTimeout<R>(f: () => R): Result<R> {
+  private handleErrorsAndTimeout<R>(f: () => Promise<R>): Promise<Result<R>> {
     try {
-      return { success: true, value: this.handleTimeout(f) };
+      return this.handleTimeout(f);
     } catch (error) {
-      return { success: false };
+      return new Promise((resolve) => resolve({ success: false }));
     }
   }
 
-  private handleTimeout<R>(f: () => R): R {
-    let result: R | undefined = undefined;
-    new Promise<R>(() => {
-      f();
-    }).then((res) => (result = res));
-    const start = Date.now();
-    while (start + this.timeout < Date.now()) {
-      if (result !== undefined) {
-        return result;
-      }
-    }
-    throw new Error('Player timeout');
+  private handleTimeout<R>(f: () => Promise<R>): Promise<Result<R>> {
+    return Promise.race([
+      this.timeoutPromise<R>(this.timeout),
+      this.resultPromise(f)
+    ]);
+  }
+
+  private resultPromise<R>(f: () => Promise<R>): Promise<Result<R>> {
+    return;
+  }
+
+  private timeoutPromise<R>(ms: number): Promise<Result<R>> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ success: false });
+      }, ms);
+    });
   }
 
   /**
@@ -53,7 +58,7 @@ export class SafePlayer<T extends QTile> {
    * @returns a result which indicates whether the call was successful and if so
    * contains the player's name
    */
-  public name(): Result<string> {
+  public async name(): Promise<Result<string>> {
     return this.handleErrorsAndTimeout(() => this.player.name());
   }
 
@@ -63,7 +68,7 @@ export class SafePlayer<T extends QTile> {
    * @param st The player's starting tiles
    * @returns a result which indicates whether the call was successful
    */
-  public setUp(m: TilePlacement<T>[], st: T[]): Result<void> {
+  public async setUp(m: TilePlacement<T>[], st: T[]): Promise<Result<void>> {
     return this.handleErrorsAndTimeout(() => this.player.setUp(m, st));
   }
 
@@ -73,7 +78,9 @@ export class SafePlayer<T extends QTile> {
    * @returns a result which indicates whether the call was successful and if so
    * contains the turn action that the player wants to take
    */
-  public takeTurn(s: RelevantPlayerInfo<T>): Result<TurnAction<T>> {
+  public async takeTurn(
+    s: RelevantPlayerInfo<T>
+  ): Promise<Result<TurnAction<T>>> {
     return this.handleErrorsAndTimeout(() => this.player.takeTurn(s));
   }
 
@@ -82,7 +89,7 @@ export class SafePlayer<T extends QTile> {
    * @param st The new tiles
    * @returns a result which indicates whether the call was successful
    */
-  public newTiles(st: T[]): Result<void> {
+  public async newTiles(st: T[]): Promise<Result<void>> {
     return this.handleErrorsAndTimeout(() => this.player.newTiles(st));
   }
 
@@ -91,7 +98,7 @@ export class SafePlayer<T extends QTile> {
    * @param w boolean, true if the player won, false otherwise
    * @returns a result which indicates whether the call was successful
    */
-  public win(w: boolean): Result<void> {
+  public async win(w: boolean): Promise<Result<void>> {
     return this.handleErrorsAndTimeout(() => this.player.win(w));
   }
 }
