@@ -1,4 +1,5 @@
 import { TurnAction } from '../../player/turnAction';
+import { Result } from '../../referee/referee.types';
 import Coordinate from '../map/coordinate';
 import { QTile } from '../map/tile';
 import { Dimensions } from './map.types';
@@ -99,7 +100,7 @@ export type TurnState<T extends QTile> = {
 export type PlayerSetupInformation<T extends QTile> = {
   name: string;
   tiles: T[];
-  setUp: (m: TilePlacement<T>[], st: T[]) => void;
+  setUp: (m: TilePlacement<T>[], st: T[]) => Result<void>;
 };
 
 /**
@@ -109,5 +110,5 @@ export type PlayerSetupInformation<T extends QTile> = {
  */
 export type PlayerEndGameInformation = {
   name: string;
-  win: (w: boolean) => void;
+  win: (w: boolean) => Result<void>;
 };

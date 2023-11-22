@@ -1,6 +1,8 @@
+import { REFEREE_PLAYER_TIMEOUT_MS } from '../constants';
 import { BaseTile } from '../game/map/tile';
 import { RefereeFunction } from './referee.types';
 import { endGame, runGame, setUpGame, setUpPlayers } from './refereeUtils';
+import { SafePlayer } from './safePlayer';
 
 /**
  * Function representing a referee to carry out a single game of Q.
@@ -57,7 +59,11 @@ export const BaseReferee: RefereeFunction<BaseTile> = (
 ) => {
   const playersCopy = [...players];
 
-  const gameState = existingGameState ?? setUpGame(playersCopy);
+  const safePlayers = playersCopy.map(
+    (player) => new SafePlayer(player, REFEREE_PLAYER_TIMEOUT_MS)
+  );
+
+  const gameState = existingGameState ?? setUpGame(safePlayers);
 
   setUpPlayers(gameState);
 

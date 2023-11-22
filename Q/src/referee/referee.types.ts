@@ -21,3 +21,12 @@ export type RefereeFunction<T extends QTile> = (
   ruleBook: QRuleBook<T>,
   existingGameState?: QGameState<T>
 ) => GameResult;
+
+/**
+ * Represents a result which encapsulates whether or not a function succeeded in
+ * running and the return value of the function.
+ */
+export type Result<R> = {
+  success: boolean;
+  value?: R;
+};

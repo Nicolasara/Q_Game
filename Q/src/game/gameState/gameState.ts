@@ -17,9 +17,9 @@ import {
   PlacementRule,
   ScoringRule
 } from '../types/rules.types';
-import { Player } from '../../player/player';
 import { TurnAction } from '../../player/turnAction';
 import { RenderableGameState } from '../types/gameState.types';
+import { SafePlayer } from '../../referee/safePlayer';
 
 /**
  * Interface representing the game state for a game of Q. Contains the game
@@ -110,7 +110,7 @@ export interface QGameState<T extends QTile> {
    * @throws Error if there are no players remaining in the queue
    * @returns The active Player
    */
-  getActivePlayerController: () => Player<T>;
+  getActivePlayerController: () => SafePlayer<T>;
 
   /**
    * Gets the information needed to setup each Player controller
@@ -404,7 +404,6 @@ abstract class AbstractGameState<T extends QTile> implements QGameState<T> {
     return endOfGameRules.some((rule) => rule(this.playerTurnQueue));
   }
 
-  // TODO: Make this return json rather than objects
   public getRenderableData() {
     const tilePlacements = this.getTilePlacementsList();
     const dimensions = this.map.getDimensions();

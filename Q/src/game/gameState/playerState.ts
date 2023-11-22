@@ -1,4 +1,4 @@
-import { Player } from '../../player/player';
+import { SafePlayer } from '../../referee/safePlayer';
 import { QTile } from '../map/tile';
 import { TurnState } from '../types/gameState.types';
 
@@ -16,10 +16,10 @@ interface QPlayerState<T extends QTile> {
   getName: () => string;
 
   /**
-   * Get a Player object, which exposes the methods needed for communicating with a Player.
-   * @returns The Player object
+   * Get a SafePlayer object, which exposes the methods needed for communicating with a Player.
+   * @returns The SafePlayer object
    */
-  getPlayerController: () => Player<T>;
+  getPlayerController: () => SafePlayer<T>;
 
   /**
    * Gets all the tiles the player currently has
@@ -63,7 +63,7 @@ interface QPlayerState<T extends QTile> {
    * Returns the most recent turn taken by the player or undefined if they have
    * not taken a turn yet
    */
-  getMostRecentTurn: () => TurnState<T>;
+  getMostRecentTurn: () => TurnState<T> | undefined;
 }
 
 /**
@@ -76,12 +76,12 @@ interface QPlayerState<T extends QTile> {
 class PlayerState<T extends QTile> implements QPlayerState<T> {
   private tiles: T[];
   private score: number;
-  private mostRecentTurnState: TurnState<T>;
+  private mostRecentTurnState: TurnState<T> | undefined;
   private name: string;
-  private player: Player<T>;
+  private player: SafePlayer<T>;
 
-  constructor(player: Player<T>) {
-    this.name = player.name();
+  constructor(player: SafePlayer<T>, playerName: string) {
+    this.name = playerName;
     this.tiles = [];
     this.score = 0;
     this.mostRecentTurnState = undefined;
@@ -120,7 +120,7 @@ class PlayerState<T extends QTile> implements QPlayerState<T> {
     this.mostRecentTurnState = turnState;
   }
 
-  public getMostRecentTurn(): TurnState<T> {
+  public getMostRecentTurn(): TurnState<T> | undefined {
     return this.mostRecentTurnState;
   }
 }
