@@ -99,7 +99,6 @@ const createPlayerTurnQueue = (
   players: SafePlayer<BaseTile>[]
 ): PlayerTurnQueue<BaseTile> => {
   const playerStates = createPlayerStates(bagOfTiles, players);
-
   return new PlayerTurnQueue<BaseTile>(playerStates);
 };
 
@@ -144,12 +143,11 @@ const createPlayerStates = (
 export const setUpPlayers = (gameState: QGameState<BaseTile>) => {
   const playerSetupInformation = gameState.getAllPlayersSetupInformation();
   const initialTilePlacements = gameState.getActivePlayerInfo().mapState;
-  const eliminatePlayer = (name: string) => gameState.eliminatePlayer(name);
 
   playerSetupInformation.forEach(({ name, tiles, setUp }) => {
     const setUpResult = setUp(initialTilePlacements, tiles);
     if (setUpResult.success === false) {
-      eliminatePlayer(name);
+      gameState.eliminatePlayer(name);
     }
   });
 };

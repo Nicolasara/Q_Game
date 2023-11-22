@@ -2,15 +2,14 @@ import { BaseGameState } from '../game/gameState/gameState';
 import Coordinate from '../game/map/coordinate';
 import { BaseTile } from '../game/map/tile';
 import { BaseRuleBook } from '../game/rules/ruleBook';
-import {
-  RelevantPlayerInfo,
-  TilePlacement
-} from '../game/types/gameState.types';
+import { RelevantPlayerInfo } from '../game/types/gameState.types';
 import { colorList, shapeList } from '../game/types/map.types';
 import { BaseTurnAction } from '../player/turnAction';
 import { BasePlayer } from '../player/player';
 import { DagStrategy } from '../player/strategy';
 import { endGame, runGame, setUpGame, setUpPlayers } from './refereeUtils';
+import { REFEREE_PLAYER_TIMEOUT_MS } from '../constants';
+import { SafePlayer } from './safePlayer';
 
 const NUMBER_OF_EACH_TILE = 30;
 const NUMBER_OF_PLAYER_TILES = 6;
@@ -22,9 +21,12 @@ const arrangeAndCallSetupGame = () => {
   const player2 = new BasePlayer('bob', new DagStrategy(), rulebook);
   const player3 = new BasePlayer('john', new DagStrategy(), rulebook);
   const players = [player1, player2, player3];
+  const safePlayers = players.map(
+    (player) => new SafePlayer(player, REFEREE_PLAYER_TIMEOUT_MS)
+  );
 
   // Act
-  return { gameState: setUpGame(players), players, rulebook };
+  return { gameState: setUpGame(safePlayers), players, rulebook };
 };
 
 type Frequency = {
