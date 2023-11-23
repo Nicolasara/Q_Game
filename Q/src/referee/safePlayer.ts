@@ -26,29 +26,33 @@ export class SafePlayer<T extends QTile> {
     this.timeout = timeout;
   }
 
-  private handleErrorsAndTimeout<R>(f: () => Promise<R>): Promise<Result<R>> {
+  private async handleErrorsAndTimeout<R>(
+    f: () => Promise<R>
+  ): Promise<Result<R>> {
     try {
-      return this.handleTimeout(f);
+      const response = await Promise.race([
+        f(),
+        this.timeoutPromise(this.timeout)
+      ]);
+      return { success: true, value: response };
     } catch (error) {
       return new Promise((resolve) => resolve({ success: false }));
     }
   }
 
-  private handleTimeout<R>(f: () => Promise<R>): Promise<Result<R>> {
-    return Promise.race([
-      this.timeoutPromise<R>(this.timeout),
-      this.resultPromise(f)
-    ]);
+  // private async handleTimeout<R>(f: () => Promise<R>): Promise<Result<R>> {
+  //   return
+  // }
+
+  private async resultPromise<R>(f: () => Promise<R>): Promise<Result<R>> {
+    const response = await f();
+    return { success: true, value: response };
   }
 
-  private resultPromise<R>(f: () => Promise<R>): Promise<Result<R>> {
-    return;
-  }
-
-  private timeoutPromise<R>(ms: number): Promise<Result<R>> {
-    return new Promise((resolve) => {
+  private async timeoutPromise(ms: number): Promise<never> {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve({ success: false });
+        reject(new Error('Function timed out'));
       }, ms);
     });
   }

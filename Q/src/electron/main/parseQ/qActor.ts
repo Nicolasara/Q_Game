@@ -39,20 +39,6 @@ export const toQPlayers = (
     const jStrategy = jActor[1];
     const qStrategy = jStrategyToQStrategy(jStrategy);
 
-    if (jActor[2] && isJExn(jActor[2])) {
-      let methodCallsUntilDelay = jActor[3];
-      if (typeof methodCallsUntilDelay !== 'number') {
-        methodCallsUntilDelay = 1;
-      }
-      return getExceptionPlayer(
-        name,
-        qStrategy,
-        rulebook,
-        jActor[2],
-        methodCallsUntilDelay
-      );
-    }
-
     if (isSimpleJActor(jActor)) {
       return new BasePlayer(name, qStrategy, rulebook);
     }

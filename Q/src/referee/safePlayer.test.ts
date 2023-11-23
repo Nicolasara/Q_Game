@@ -10,30 +10,30 @@ import {
 class AbstractFailPlayer implements Player<BaseTile> {
   constructor() {}
 
-  protected fail() {
+  protected async fail() {
     throw new Error('Test error');
   }
 
   public async name() {
-    this.fail();
+    await this.fail();
     return 'Test';
   }
 
   public async setUp(_m: TilePlacement<BaseTile>[], _st: BaseTile[]) {
-    this.fail();
+    await this.fail();
   }
 
   public async takeTurn(_s: RelevantPlayerInfo<BaseTile>) {
-    this.fail();
+    await this.fail();
     return new BaseTurnAction<BaseTile>('PASS');
   }
 
   public async newTiles(_st: BaseTile[]) {
-    this.fail();
+    await this.fail();
   }
 
   public async win() {
-    this.fail();
+    await this.fail();
   }
 }
 
@@ -42,7 +42,7 @@ class ErrorPlayer extends AbstractFailPlayer {
     super();
   }
 
-  protected fail() {
+  protected async fail() {
     throw new Error('Test error');
   }
 }
@@ -52,11 +52,8 @@ class TimeoutPlayer extends AbstractFailPlayer {
     super();
   }
 
-  protected fail() {
-    const start = Date.now();
-    while (start + 5000 > Date.now()) {
-      // Do nothing
-    }
+  protected async fail() {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 }
 
@@ -65,7 +62,7 @@ class GoodPlayer extends AbstractFailPlayer {
     super();
   }
 
-  protected fail() {
+  protected async fail() {
     // Do nothing
   }
 }
@@ -123,7 +120,7 @@ describe('SafePlayer tests', () => {
     expect(newTiles.success).toBe(false);
     const win = await safeTimeoutPlayer.win(true);
     expect(win.success).toBe(false);
-  });
+  }, 12000);
 
   it.skip('should handle good calls', async () => {
     const name = await safeGoodPlayer.name();
