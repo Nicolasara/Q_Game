@@ -40,17 +40,8 @@ export class SafePlayer<T extends QTile> {
     }
   }
 
-  // private async handleTimeout<R>(f: () => Promise<R>): Promise<Result<R>> {
-  //   return
-  // }
-
-  private async resultPromise<R>(f: () => Promise<R>): Promise<Result<R>> {
-    const response = await f();
-    return { success: true, value: response };
-  }
-
   private async timeoutPromise(ms: number): Promise<never> {
-    return new Promise((resolve, reject) => {
+    return new Promise((_resolve, reject) => {
       setTimeout(() => {
         reject(new Error('Function timed out'));
       }, ms);

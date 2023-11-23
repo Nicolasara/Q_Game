@@ -84,7 +84,7 @@ describe('SafePlayer tests', () => {
     safeTimeoutPlayer = new SafePlayer(mockTimeoutPlayer, 2000);
   });
 
-  it.skip('should handle errors', async () => {
+  it('should handle errors', async () => {
     const name = await safeErrorPlayer.name();
     expect(name.success).toBe(false);
     const setUp = await safeErrorPlayer.setUp([], []);
@@ -122,7 +122,7 @@ describe('SafePlayer tests', () => {
     expect(win.success).toBe(false);
   }, 12000);
 
-  it.skip('should handle good calls', async () => {
+  it('should handle good calls', async () => {
     const name = await safeGoodPlayer.name();
     expect(name.success).toBe(true);
     expect(name.value).toBe('Test');
