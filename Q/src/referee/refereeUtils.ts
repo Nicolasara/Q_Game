@@ -1,8 +1,4 @@
-import {
-  NUMBER_OF_EACH_TILE,
-  NUMBER_OF_PLAYER_TILES,
-  REFEREE_PLAYER_TIMEOUT_MS
-} from '../constants';
+import { NUMBER_OF_EACH_TILE, NUMBER_OF_PLAYER_TILES } from '../constants';
 import { RandomBagOfTiles, QBagOfTiles } from '../game/gameState/bagOfTiles';
 import { BaseGameState, QGameState } from '../game/gameState/gameState';
 import PlayerState from '../game/gameState/playerState';
@@ -29,17 +25,20 @@ import { Observer } from '../observer/observer';
 import { SafePlayer } from './safePlayer';
 
 /**
- * Set up a game of Q by creating the initial game state and communicating to each of the players the initial state.
- * Game state is created with a bag of tiles, an initial map, and the player turn queue.
- * @param players list of the players in the game, as passed to the referee. Invariant that this is a copy of the original list, and the ordering of the players will never change.
+ * Set up a game of Q by creating the initial game state and communicating to
+ * each of the players the initial state. Game state is created with a bag of
+ * tiles, an initial map, and the player turn queue.
+ * @param players list of the players in the game, as passed to the referee.
+ * Invariant that this is a copy of the original list, and the ordering of the
+ * players will never change.
  * @returns The initial game state
  */
-export const setUpGame = (players: SafePlayer<BaseTile>[]) => {
+export const setUpGame = async (players: SafePlayer<BaseTile>[]) => {
   const bagOfTiles = createBagOfTiles(NUMBER_OF_EACH_TILE);
 
   const map = createMap(bagOfTiles);
 
-  const turnQueue = createPlayerTurnQueue(bagOfTiles, players);
+  const turnQueue = await createPlayerTurnQueue(bagOfTiles, players);
 
   const gameState = new BaseGameState(map, turnQueue, bagOfTiles);
 
@@ -57,7 +56,8 @@ const createBagOfTiles = (numOfEach: number) => {
 };
 
 /**
- * Create a list of tiles with the given number of each type of tile, where the types are determined by every combination of colors and shapes.
+ * Create a list of tiles with the given number of each type of tile, where the
+ * types are determined by every combination of colors and shapes.
  * @param numOfEach Number of each type of tile to make
  * @returns a list of tiles with the given number of each kind of tile
  */
@@ -74,8 +74,8 @@ const createNumOfEachTile = (numOfEach: number) => {
 };
 
 /**
- * Create the initial map for the Q game.
- * Choose the first tile from the bag as the starting tile and use (0, 0) as the starting coordinate
+ * Create the initial map for the Q game. Choose the first tile from the bag as
+ * the starting tile and use (0, 0) as the starting coordinate
  * @param bagOfTiles The bag of tiles for the game
  * @returns The inital map
  */
@@ -87,25 +87,26 @@ const createMap = (bagOfTiles: QBagOfTiles<BaseTile>) => {
 };
 
 /**
- * Initialize the turn queue for the players in the game.
- * This involves first creating PlayerStates for all of the players, and then communicating to the players with the initial map and their tiles.
+ * Initialize the turn queue for the players in the game. This involves first
+ * creating PlayerStates for all of the players, and then communicating to the
+ * players with the initial map and their tiles.
  * @param bagOfTiles The bag of tiles for the game
  * @param players A list of the Players
  * @param initialTilePlacements The initial tile placements on the map
  * @returns The initial Player Turn Queue
  */
-const createPlayerTurnQueue = (
+const createPlayerTurnQueue = async (
   bagOfTiles: QBagOfTiles<BaseTile>,
   players: SafePlayer<BaseTile>[]
-): PlayerTurnQueue<BaseTile> => {
-  const playerStates = createPlayerStates(bagOfTiles, players);
+): Promise<PlayerTurnQueue<BaseTile>> => {
+  const playerStates = await createPlayerStates(bagOfTiles, players);
   return new PlayerTurnQueue<BaseTile>(playerStates);
 };
 
 /**
- * Create a PlayerState for each Player.
- * If the PlayerState throws an error on instantiation, indicating the Player's name()
- * method threw an error, then we do not include them in the game
+ * Create a PlayerState for each Player. If the PlayerState throws an error on
+ * instantiation, indicating the Player's name() method threw an error, then we
+ * do not include them in the game
  * @param bagOfTiles The bag of tiles for the game
  * @param players A list of the Players in the game
  * @returns a list of the PlayerStates generated for the players
@@ -114,42 +115,45 @@ const createPlayerStates = (
   bagOfTiles: QBagOfTiles<BaseTile>,
   players: SafePlayer<BaseTile>[]
 ) => {
-  return players
-    .map((player) => {
-      const playerTiles: BaseTile[] = [];
-      for (let i = 0; i < NUMBER_OF_PLAYER_TILES; i++) {
-        playerTiles.push(bagOfTiles.drawTile());
-      }
+  return Promise.all(
+    players
+      .map(async (player) => {
+        const playerTiles: BaseTile[] = [];
+        for (let i = 0; i < NUMBER_OF_PLAYER_TILES; i++) {
+          playerTiles.push(bagOfTiles.drawTile());
+        }
 
-      const playerName = player.name();
-      if (!playerName.success || playerName.value === undefined) {
-        return undefined;
-      }
+        const playerName = await player.name();
+        if (!playerName.success || playerName.value === undefined) {
+          return undefined;
+        }
 
-      return new PlayerState<BaseTile>(player, playerName.value);
-    })
-    .filter(
-      (playerState): playerState is PlayerState<BaseTile> =>
-        playerState !== undefined
-    );
+        return new PlayerState<BaseTile>(player, playerName.value);
+      })
+      .filter(
+        (playerState): playerState is Promise<PlayerState<BaseTile>> =>
+          playerState !== undefined
+      )
+  );
 };
 
 /**
- * Communicate with each player their tiles to start the game and the initial tile placements on the map.
- * If a player throws an error on set up, they should be eliminated from the game
+ * Communicate with each player their tiles to start the game and the initial
+ * tile placements on the map. If a player throws an error on set up, they
+ * should be eliminated from the game
  * @param gameState the current game state
  * @return void
  */
-export const setUpPlayers = (gameState: QGameState<BaseTile>) => {
+export const setUpPlayers = async (gameState: QGameState<BaseTile>) => {
   const playerSetupInformation = gameState.getAllPlayersSetupInformation();
   const initialTilePlacements = gameState.getActivePlayerInfo().mapState;
 
-  playerSetupInformation.forEach(({ name, tiles, setUp }) => {
-    const setUpResult = setUp(initialTilePlacements, tiles);
+  for (let { name, tiles, setUp } of playerSetupInformation) {
+    const setUpResult = await setUp(initialTilePlacements, tiles);
     if (setUpResult.success === false) {
       gameState.eliminatePlayer(name);
     }
-  });
+  }
 };
 
 /**
@@ -171,16 +175,16 @@ export const setUpPlayers = (gameState: QGameState<BaseTile>) => {
  * @param rulebook The rulebook for the game
  * @returns The final scoreboard of the game
  */
-export const runGame = (
+export const runGame = async (
   gameState: QGameState<BaseTile>,
   rulebook: QRuleBook<BaseTile>,
   observers: Observer<BaseTile>[]
-): QGameState<BaseTile> => {
+): Promise<QGameState<BaseTile>> => {
   const isGameOver = () => gameState.isGameOver(rulebook.getEndOfGameRules());
 
   updateObservers(gameState.getRenderableData(), observers);
   while (!isGameOver()) {
-    manageTurn(gameState, rulebook);
+    await manageTurn(gameState, rulebook);
     updateObservers(gameState.getRenderableData(), observers);
   }
 
@@ -201,13 +205,13 @@ const updateObservers = (
 };
 
 /**
- * Manage a single turn by a player.
- * A turn involves getting the turn action from a player, validating it, executing it, and scoring it
+ * Manage a single turn by a player. A turn involves getting the turn action
+ * from a player, validating it, executing it, and scoring it
  * @param gameState the current game state
  * @param rulebook the rules of the game
  * @returns void
  */
-const manageTurn = (
+const manageTurn = async (
   gameState: QGameState<BaseTile>,
   rulebook: QRuleBook<BaseTile>
 ) => {
@@ -217,13 +221,13 @@ const manageTurn = (
 
   const turnAction = getAndValidateTurnAction(
     activePlayerName,
-    activePlayerController.takeTurn(publicState),
+    await activePlayerController.takeTurn(publicState),
     gameState,
     rulebook.getPlacementRules()
   );
 
   if (turnAction !== undefined) {
-    doTurnAndUpdatePlayer(
+    await doTurnAndUpdatePlayer(
       turnAction,
       activePlayerName,
       activePlayerController,
@@ -233,7 +237,7 @@ const manageTurn = (
   }
 };
 
-const doTurnAndUpdatePlayer = (
+const doTurnAndUpdatePlayer = async (
   turnAction: TurnAction<BaseTile>,
   playerName: string,
   playerController: SafePlayer<BaseTile>,
@@ -253,7 +257,7 @@ const doTurnAndUpdatePlayer = (
 
   gameState.nextTurn(originalTiles, turnAction);
 
-  givePlayerNewTiles(
+  await givePlayerNewTiles(
     playerName,
     playerController,
     newTiles,
@@ -271,15 +275,15 @@ const doTurnAndUpdatePlayer = (
  * @param gameState the current game state
  * @param endOfGameRules the end of game rules for the game
  */
-const givePlayerNewTiles = (
+const givePlayerNewTiles = async (
   playerName: string,
   playerController: SafePlayer<BaseTile>,
   newTiles: BaseTile[],
   gameState: QGameState<BaseTile>,
   endOfGameRules: ReadonlyArray<EndOfGameRule<BaseTile>>
-): void => {
+): Promise<void> => {
   if (newTiles.length > 0 && !gameState.isGameOver(endOfGameRules)) {
-    const resultNewTilesCall = playerController.newTiles(newTiles);
+    const resultNewTilesCall = await playerController.newTiles(newTiles);
     if (resultNewTilesCall.success === false) {
       gameState.eliminatePlayer(playerName);
     }
@@ -404,16 +408,16 @@ const executeTurnAction = (
  * @param finalGameState The final game state for the game
  * @returns A GameResult of the winners and eliminated players
  */
-export function endGame(
+export async function endGame(
   finalGameState: QGameState<BaseTile>,
   observers: Observer<BaseTile>[]
-): GameResult {
+): Promise<GameResult> {
   const scoreboard = finalGameState.getScoreboard();
 
   const winners = getWinnersNames(scoreboard);
   const eliminated = finalGameState.getEliminatedPlayerNames();
 
-  const finalResult = communicateWinWithPlayers(
+  const finalResult = await communicateWinWithPlayers(
     finalGameState.getAllPlayersEndGameInformation(),
     [winners, eliminated]
   );
@@ -465,14 +469,14 @@ const getWinnersNames = (scoreboard: Scoreboard): string[] => {
  * @param playerNames
  * @param gameResult
  */
-const communicateWinWithPlayers = (
+const communicateWinWithPlayers = async (
   playersEndGameInformation: PlayerEndGameInformation[],
   [winners, eliminated]: GameResult
-): GameResult => {
-  playersEndGameInformation.forEach(({ name, win }) => {
+): Promise<GameResult> => {
+  for (const { name, win } of playersEndGameInformation) {
     const playerWon = winners.includes(name);
 
-    const resultWinCall = win(playerWon);
+    const resultWinCall = await win(playerWon);
     if (resultWinCall.success === false) {
       if (playerWon) {
         winners.splice(
@@ -482,7 +486,7 @@ const communicateWinWithPlayers = (
       }
       eliminated.push(name);
     }
-  });
+  }
 
   return [winners, eliminated];
 };

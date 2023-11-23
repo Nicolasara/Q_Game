@@ -174,12 +174,10 @@ abstract class AbstractDelayedTimeoutPlayer<
     this.methodCallCount = 0;
   }
 
-  protected callDelayedTimeoutMethod() {
+  protected async callDelayedTimeoutMethod() {
     this.methodCallCount++;
     if (this.methodCallCount >= this.methodCallsUntilDelay) {
-      while (true) {
-        // infinite loop
-      }
+      await new Promise((resolve) => setTimeout(resolve, Infinity));
     }
   }
 }

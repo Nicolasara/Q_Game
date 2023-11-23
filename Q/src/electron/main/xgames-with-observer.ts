@@ -38,7 +38,7 @@ function processInput() {
 
 // TODO: Does this require that stdin is closed before triggering?
 function runGame(observers: BaseObserver<BaseTile>[]) {
-  process.stdin.on('end', () => {
+  process.stdin.on('end', async () => {
     if (!inputState || !inputActors) {
       throw new Error('invalid JSON input, JPub and JStrategy not defined');
     }
@@ -56,14 +56,17 @@ function runGame(observers: BaseObserver<BaseTile>[]) {
 
     const players = toQPlayers(inputActors, rulebook);
 
-    const { qMap, qTilesInBag, playerStates } = toQState(inputState, players);
+    const { qMap, qTilesInBag, playerStates } = await toQState(
+      inputState,
+      players
+    );
 
     const qBagOfTiles = new BaseBagOfTiles(qTilesInBag);
     const qPlayerTurnQueue = new PlayerTurnQueue<BaseTile>(playerStates);
 
     const qGameState = new BaseGameState(qMap, qPlayerTurnQueue, qBagOfTiles);
 
-    const [winners, eliminated] = BaseReferee(
+    const [winners, eliminated] = await BaseReferee(
       players,
       observers,
       rulebook,

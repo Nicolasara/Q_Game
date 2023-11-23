@@ -51,7 +51,7 @@ import { SafePlayer } from './safePlayer';
  * @param existingGameState optional QGameState type. When passed in, the referee resumes the game from that game state.
  * @returns GameResult type: pair of a list of the winners and a list of the eliminated players
  */
-export const BaseReferee: RefereeFunction<BaseTile> = (
+export const BaseReferee: RefereeFunction<BaseTile> = async (
   players,
   observers,
   ruleBook,
@@ -63,11 +63,11 @@ export const BaseReferee: RefereeFunction<BaseTile> = (
     (player) => new SafePlayer(player, REFEREE_PLAYER_TIMEOUT_MS)
   );
 
-  const gameState = existingGameState ?? setUpGame(safePlayers);
+  const gameState = await (existingGameState ?? setUpGame(safePlayers));
 
-  setUpPlayers(gameState);
+  await setUpPlayers(gameState);
 
-  const finalGameState = runGame(gameState, ruleBook, observers);
+  const finalGameState = await runGame(gameState, ruleBook, observers);
 
   return endGame(finalGameState, observers);
 };

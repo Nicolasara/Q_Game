@@ -14,7 +14,10 @@ type QState = {
   playerStates: PlayerState<BaseTile>[];
 };
 
-export function toQState(jState: JState, players: Player<BaseTile>[]): QState {
+export async function toQState(
+  jState: JState,
+  players: Player<BaseTile>[]
+): Promise<QState> {
   const qMap = toQMap(jState.map);
   const qTilesInBag = jState['tile*'].map((tile) => toQTile(tile));
   const qPlayers = jState.players.map((player) => ({
@@ -22,17 +25,19 @@ export function toQState(jState: JState, players: Player<BaseTile>[]): QState {
     'tile*': player['tile*'].map((tile) => toQTile(tile))
   }));
 
-  const playerStates = players.map((player, index) => {
-    const playerState = new PlayerState(
-      new SafePlayer(player, REFEREE_PLAYER_TIMEOUT_MS),
-      player.name()
-    );
-    const qPlayer = qPlayers[index];
-    playerState.setTiles(qPlayer['tile*']);
-    playerState.updateScore(qPlayer.score);
+  const playerStates = await Promise.all(
+    players.map(async (player, index) => {
+      const playerState = new PlayerState(
+        new SafePlayer(player, REFEREE_PLAYER_TIMEOUT_MS),
+        await player.name()
+      );
+      const qPlayer = qPlayers[index];
+      playerState.setTiles(qPlayer['tile*']);
+      playerState.updateScore(qPlayer.score);
 
-    return playerState;
-  });
+      return playerState;
+    })
+  );
 
   return { qMap, qTilesInBag, playerStates };
 }

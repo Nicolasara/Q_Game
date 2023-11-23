@@ -20,7 +20,7 @@ export type RefereeFunction<T extends QTile> = (
   observers: Observer<T>[],
   ruleBook: QRuleBook<T>,
   existingGameState?: QGameState<T>
-) => GameResult;
+) => Promise<GameResult>;
 
 /**
  * Represents a result which encapsulates whether or not a function succeeded in
